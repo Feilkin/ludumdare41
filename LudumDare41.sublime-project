@@ -1,0 +1,16 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+    "build_systems":
+    [
+        {
+            "name": "Build and Run",
+            "shell_cmd": "moonc . && love .",
+            "working_dir": "${project_path}/"
+        }
+    ]
+}
