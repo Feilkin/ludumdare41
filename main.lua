@@ -24,7 +24,7 @@ game.switch_level = function(self, to)
   if game.level ~= new_level then
     game.level:unload()
     game.world:clearEntities()
-    game.world:addEntity(player)
+    game.world:refresh()
     game.bump_world = bump.newWorld(256)
     collisionSystem.bump_world = game.bump_world
     new_level:load()
@@ -33,8 +33,10 @@ game.switch_level = function(self, to)
   game.level = new_level
   game.level:spawn_player(player, connector)
   if game.bump_world:hasItem(player) then
-    return game.bump_world:update(player, player.position.x, player.position.y, player.bounding_box.x, player.bounding_box.y)
+    game.bump_world:update(player, player.position.x, player.position.y, player.bounding_box.x, player.bounding_box.y)
   end
+  game.current_door = nil
+  game.current_sign = nil
 end
 love.load = function()
   game.spritesheet = spritesheet.load("res/sprites/spritesheet_complete.xml")
@@ -52,6 +54,12 @@ love.load = function()
   return love.graphics.setFont(font)
 end
 love.update = function(dt)
+  if game.switch_level_to then
+    game:switch_level(game.switch_level_to)
+    game.switch_level_to = nil
+    return 
+  end
+  game.systems_running = false
   game.world:update(dt)
   game.level:update(dt)
   camera:lookAt(player)
@@ -70,16 +78,12 @@ love.update = function(dt)
       player.velocity.y = -650
     end
   end
-  if game.switch_level_to then
-    game:switch_level(game.switch_level_to)
-    game.switch_level_to = nil
-  end
 end
-love.keyreleased = function(key, code)
+love.keypressed = function(key, code)
   if key == "w" then
     if game.current_door then
       if not game.current_door.properties.locked then
-        return game:switch_level(game.current_door.properties.connects_to)
+        game.switch_level_to = game.current_door.properties.connects_to
       else
         return camera:shake(0.1, 4)
       end
@@ -119,5 +123,5 @@ love.draw = function()
     love.graphics.printf(text, x, y, w, "center")
     love.graphics.setColor(1, 1, 1, 1)
   end
-  return love.graphics.print(string.format("%0.2d, %0.2d", player.position.x, player.position.y), 2, 2)
+  return love.graphics.print(string.format("%0.2d, %0.2d %s", player.position.x, player.position.y, game.systems_running), 2, 2)
 end

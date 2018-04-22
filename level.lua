@@ -56,7 +56,6 @@ do
       self.backgrounds = backgrounds
     end,
     unload = function(self)
-      game.world:clearEntities()
       self.map = nil
       self.backgrounds = nil
     end,

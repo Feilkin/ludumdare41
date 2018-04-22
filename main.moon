@@ -25,7 +25,7 @@ game.switch_level = (to) =>
   if game.level ~= new_level
     game.level\unload()
     game.world\clearEntities()
-    game.world\addEntity(player)
+    game.world\refresh()
     game.bump_world = bump.newWorld(256)
     collisionSystem.bump_world = game.bump_world
     new_level\load()
@@ -34,6 +34,9 @@ game.switch_level = (to) =>
   game.level\spawn_player(player, connector)
   if game.bump_world\hasItem(player)
     game.bump_world\update(player, player.position.x, player.position.y, player.bounding_box.x, player.bounding_box.y)
+
+  game.current_door = nil
+  game.current_sign = nil
 
 
 love.load = ->
@@ -58,6 +61,12 @@ love.load = ->
   love.graphics.setFont(font)
 
 love.update = (dt) ->
+  if game.switch_level_to
+    game\switch_level(game.switch_level_to)
+    game.switch_level_to = nil
+    return
+
+  game.systems_running = false
   game.world\update(dt)
   game.level\update(dt)
 
@@ -77,15 +86,11 @@ love.update = (dt) ->
     if love.keyboard.isDown("space") and player.on_ground
       player.velocity.y = -650
 
-  if game.switch_level_to
-    game\switch_level(game.switch_level_to)
-    game.switch_level_to = nil
-
-love.keyreleased = (key, code) ->
+love.keypressed = (key, code) ->
   if key == "w"
     if game.current_door
       if not game.current_door.properties.locked
-        game\switch_level(game.current_door.properties.connects_to)
+        game.switch_level_to = game.current_door.properties.connects_to
       else
         camera\shake(0.1, 4)
 
@@ -126,4 +131,4 @@ love.draw = ->
     love.graphics.printf(text, x, y, w, "center")
     love.graphics.setColor(1, 1, 1, 1)
 
-  love.graphics.print(string.format("%0.2d, %0.2d" ,player.position.x, player.position.y), 2, 2)
+  love.graphics.print(string.format("%0.2d, %0.2d %s" ,player.position.x, player.position.y, game.systems_running), 2, 2)

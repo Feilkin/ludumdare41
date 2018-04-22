@@ -4,9 +4,9 @@ a Souls-like platformer in the Asset Flip series. Also my LD41 entry.
 
 ## TODO
 
- * Fix the level change bug
  * Fix level loading (getInfo instead of getDirectoryItems)
  * Sounds
+ * Particle effects
  * Enemies
  * Other NPC
  * Power ups (double jump, swim)

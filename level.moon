@@ -55,7 +55,7 @@ class Level
     @backgrounds = backgrounds
 
   unload: () =>
-    game.world\clearEntities()
+    --game.world\clearEntities()
     @map = nil
     @backgrounds = nil
 

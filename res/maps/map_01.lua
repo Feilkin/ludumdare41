@@ -580,6 +580,31 @@ return {
           properties = {
             ["collidable"] = true,
             ["type"] = "spikes"
+          },
+          objectGroup = {
+            type = "objectgroup",
+            name = "",
+            visible = true,
+            opacity = 1,
+            offsetx = 0,
+            offsety = 0,
+            draworder = "index",
+            properties = {},
+            objects = {
+              {
+                id = 4,
+                name = "",
+                type = "",
+                shape = "rectangle",
+                x = 0,
+                y = 38,
+                width = 64,
+                height = 26,
+                rotation = 0,
+                visible = true,
+                properties = {}
+              }
+            }
           }
         },
         {

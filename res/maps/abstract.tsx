@@ -456,6 +456,9 @@
    <property name="collidable" type="bool" value="true"/>
    <property name="type" value="spikes"/>
   </properties>
+  <objectgroup draworder="index">
+   <object id="4" x="0" y="38" width="64" height="26"/>
+  </objectgroup>
  </tile>
  <tile id="211">
   <properties>

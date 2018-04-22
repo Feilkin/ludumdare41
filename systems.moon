@@ -7,6 +7,7 @@ import Vector from require "util"
 physicsSystem = tiny.processingSystem()
 physicsSystem.filter = tiny.requireAll("position", "velocity")
 physicsSystem.process = (e, dt) =>
+  game.systems_running = true
   if e.affected_by_gravity and not e.on_ground
     e.velocity.y += 1500 * dt
     if e.velocity.y > 800

@@ -6,6 +6,7 @@ Vector = require("util").Vector
 local physicsSystem = tiny.processingSystem()
 physicsSystem.filter = tiny.requireAll("position", "velocity")
 physicsSystem.process = function(self, e, dt)
+  game.systems_running = true
   if e.affected_by_gravity and not e.on_ground then
     e.velocity.y = e.velocity.y + (1500 * dt)
     if e.velocity.y > 800 then
