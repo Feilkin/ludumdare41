@@ -3,8 +3,11 @@ local bump = require("bump")
 local spritesheet = require("spritesheet")
 local Camera
 Camera = require("camera").Camera
-local Vector
-Vector = require("util").Vector
+local Vector, load_sound
+do
+  local _obj_0 = require("util")
+  Vector, load_sound = _obj_0.Vector, _obj_0.load_sound
+end
 local Player
 Player = require("entity").Player
 local levels = require("levels")
@@ -16,8 +19,39 @@ end
 local camera
 local player
 game = {
-  checkpoint = nil
+  checkpoint = nil,
+  sounds = { }
 }
+game.play_sound = function(name, once)
+  local sound = assert(game.sounds[name], "no sound named " .. name)
+  local source_count = #sound.source_pool
+  local offset = math.floor(love.math.random() * source_count)
+  if once then
+    local _list_0 = sound.source_pool
+    for _index_0 = 1, #_list_0 do
+      local source = _list_0[_index_0]
+      if source:isPlaying() then
+        return 
+      end
+    end
+  end
+  for i = 1, source_count do
+    local index = (i + offset) % source_count + 1
+    local source = sound.source_pool[index]
+    if not source:isPlaying() then
+      if options then
+        if options.position then
+          source:setPosition(options.position.x, options.position.y, options.position.z or 0)
+        else
+          source:setPosition(0, 0, 0)
+        end
+      end
+      source:seek(0)
+      source:play()
+      return 
+    end
+  end
+end
 game.switch_level = function(self, to)
   local level_name, connector = to:match("^([^:]+):(.+)$")
   local new_level = assert(levels[level_name], "level " .. level_name .. " not found")
@@ -51,7 +85,40 @@ love.load = function()
   collisionSystem.map = game.level.map
   game.level:spawn_player(player, "player_spawn")
   local font = love.graphics.newFont("res/block_font.ttf", 20)
-  return love.graphics.setFont(font)
+  love.graphics.setFont(font)
+  game.sounds.walk = load_sound("walk", {
+    "walk1.ogg",
+    "walk2.ogg"
+  }, {
+    pool_size = 1
+  })
+  game.sounds.land = load_sound("land", {
+    "land1.ogg",
+    "land2.ogg",
+    "land3.ogg"
+  }, {
+    pool_size = 1,
+    volume = 0.6
+  })
+  game.sounds.crash = load_sound("crash", {
+    "crash1.ogg",
+    "crash2.ogg"
+  }, {
+    pool_size = 1,
+    volume = 1
+  })
+  game.sounds.jump = load_sound("jump", {
+    "jump1.ogg"
+  }, {
+    pool_size = 1
+  })
+  game.sounds.impaled = load_sound("impaled", {
+    "spikes1.ogg",
+    "spikes2.ogg"
+  }, {
+    pool_size = 1,
+    volume = 0.6
+  })
 end
 love.update = function(dt)
   if game.switch_level_to then
@@ -68,14 +135,21 @@ love.update = function(dt)
     if love.keyboard.isDown("d") then
       player.velocity.x = 200
       player.flip_x = false
+      if player.on_ground then
+        game.play_sound("walk", true)
+      end
     elseif love.keyboard.isDown("a") then
       player.velocity.x = -200
       player.flip_x = true
+      if player.on_ground then
+        game.play_sound("walk", true)
+      end
     else
       player.velocity.x = 0
     end
     if love.keyboard.isDown("space") and player.on_ground then
       player.velocity.y = -650
+      return game.play_sound("jump", true)
     end
   end
 end

@@ -5,7 +5,7 @@ bump = require "bump"
 spritesheet = require "spritesheet"
 
 import Camera from require "camera"
-import Vector from require "util"
+import Vector, load_sound from require "util"
 import Player from require "entity"
 levels = require "levels"
 
@@ -16,8 +16,37 @@ local player
 
 export game
 game = {
-  checkpoint: nil
+  checkpoint: nil,
+  sounds: {}
 }
+
+game.play_sound = (name, once) ->
+  sound = assert(game.sounds[name], "no sound named " .. name)
+
+  source_count = #sound.source_pool
+  offset = math.floor(love.math.random() * source_count)
+
+  if once
+    for source in *sound.source_pool
+      if source\isPlaying()
+        return
+
+  for i = 1, source_count do
+    index = (i + offset) % source_count + 1
+
+    source = sound.source_pool[index]
+    if not source\isPlaying() then
+      if options then
+        if options.position then
+          source\setPosition(options.position.x,
+            options.position.y,
+            options.position.z or 0)
+        else
+          source\setPosition(0,0,0)
+
+      source\seek(0)
+      source\play()
+      return
 
 game.switch_level = (to) =>
   level_name, connector = to\match("^([^:]+):(.+)$")
@@ -60,6 +89,12 @@ love.load = ->
   font = love.graphics.newFont("res/block_font.ttf", 20)
   love.graphics.setFont(font)
 
+  game.sounds.walk = load_sound("walk", {"walk1.ogg", "walk2.ogg"}, { pool_size: 1 })
+  game.sounds.land = load_sound("land", {"land1.ogg", "land2.ogg", "land3.ogg"}, { pool_size: 1, volume: 0.6 })
+  game.sounds.crash = load_sound("crash", {"crash1.ogg", "crash2.ogg"}, { pool_size: 1, volume: 1 })
+  game.sounds.jump = load_sound("jump", {"jump1.ogg",}, { pool_size: 1 })
+  game.sounds.impaled = load_sound("impaled", {"spikes1.ogg", "spikes2.ogg"}, { pool_size: 1, volume: 0.6 })
+
 love.update = (dt) ->
   if game.switch_level_to
     game\switch_level(game.switch_level_to)
@@ -77,14 +112,20 @@ love.update = (dt) ->
     if love.keyboard.isDown("d")
       player.velocity.x = 200
       player.flip_x = false
+
+      if player.on_ground
+        game.play_sound("walk", true)
     elseif love.keyboard.isDown("a") 
       player.velocity.x = -200
       player.flip_x = true
+      if player.on_ground
+        game.play_sound("walk", true)
     else
       player.velocity.x = 0
 
     if love.keyboard.isDown("space") and player.on_ground
       player.velocity.y = -650
+      game.play_sound("jump", true)
 
 love.keypressed = (key, code) ->
   if key == "w"

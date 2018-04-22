@@ -150,6 +150,38 @@ recursivefind = function(pattern, dir)
   end
   return out
 end
+local load_sound
+load_sound = function(name, path, options)
+  if type(path) == "string" then
+    path = {
+      path
+    }
+  end
+  options = options or { }
+  local source_pool = { }
+  for _index_0 = 1, #path do
+    local path = path[_index_0]
+    print("loading " .. path)
+    local source = love.audio.newSource("res/sounds/" .. path, "static")
+    if options.volume then
+      source:setVolume(options.volume)
+    end
+    for i = 1, options.pool_size or 10 do
+      local clone = source:clone()
+      if options.pitch_variation then
+        local v_min, v_max = options.pitch_variation.min, options.pitch_variation.max
+        local var_d = v_max - v_min
+        local variation = v_min + love.math.random() * var_d
+        clone:setPitch(variation)
+      end
+      table.insert(source_pool, clone)
+    end
+  end
+  return {
+    source_pool = source_pool,
+    name = name
+  }
+end
 return {
   instance_of = instance_of,
   Vector = Vector,
@@ -158,5 +190,6 @@ return {
   filter = filter,
   ifilter = ifilter,
   iextend = iextend,
-  recursivefind = recursivefind
+  recursivefind = recursivefind,
+  load_sound = load_sound
 }

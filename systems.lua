@@ -38,6 +38,8 @@ collisionSystem.process = function(self, e, dt)
     self.bump_world:update(e, e.position.x, e.position.y, e.bounding_box.x, e.bounding_box.y)
   end
   if e.move_position then
+    local was_on_ground = e.on_ground
+    local played_sound = false
     e.on_ground = false
     game.current_sign = nil
     game.current_door = nil
@@ -53,7 +55,13 @@ collisionSystem.process = function(self, e, dt)
         repeat
           local col = cols[_index_0]
           local _exp_0 = (col.other.type or col.other.properties.type)
-          if "water" == _exp_0 or "spikes" == _exp_0 then
+          if "water" == _exp_0 then
+            e.dead = true
+          elseif "spikes" == _exp_0 then
+            if not e.dead then
+              game.play_sound("impaled", true)
+            end
+            e.velocity.x = 0
             e.dead = true
           elseif "sign" == _exp_0 then
             game.current_sign = col.other
@@ -78,11 +86,25 @@ collisionSystem.process = function(self, e, dt)
             end
           else
             if col.normal.y == -1 then
-              e.on_ground = true
               if e.velocity.y > 700 then
+                if not played_sound then
+                  played_sound = true
+                  game.play_sound("crash", true)
+                end
                 game.camera:shake(0.1, 16 * e.velocity.y / 800)
+              elseif e.velocity.y > 300 then
+                if not played_sound then
+                  played_sound = true
+                  game.play_sound("land", true)
+                end
+              elseif (e.velocity.y > 10) and not was_on_ground then
+                if not played_sound then
+                  played_sound = true
+                  game.play_sound("walk", true)
+                end
               end
               e.velocity.y = 0
+              e.on_ground = true
             end
           end
           _continue_0 = true

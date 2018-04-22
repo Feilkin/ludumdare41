@@ -97,6 +97,35 @@ recursivefind = (pattern, dir) ->
   return out
 
 
+load_sound = (name, path, options) ->
+  if type(path) == "string"
+    path = {path}
+  options = options or {}
+
+  source_pool = {}
+
+  for path in *path
+    print("loading " .. path)
+    source = love.audio.newSource("res/sounds/" .. path, "static")
+    if options.volume then
+      source\setVolume(options.volume)
+
+    for i = 1, options.pool_size or 10
+      clone = source\clone()
+
+      if options.pitch_variation then
+        v_min, v_max = options.pitch_variation.min, options.pitch_variation.max
+        var_d = v_max - v_min
+        variation = v_min + love.math.random() * var_d
+        clone\setPitch(variation)
+
+      table.insert(source_pool, clone)
+
+  {
+    source_pool: source_pool
+    name: name
+  }
+
 {
   :instance_of
   :Vector
@@ -106,4 +135,5 @@ recursivefind = (pattern, dir) ->
   :ifilter
   :iextend
   :recursivefind
+  :load_sound
 }

@@ -35,6 +35,8 @@ collisionSystem.process = (e, dt) =>
     @bump_world\update(e, e.position.x, e.position.y, e.bounding_box.x, e.bounding_box.y)
 
   if e.move_position
+    was_on_ground = e.on_ground
+    played_sound = false
     e.on_ground = false
     game.current_sign = nil
     game.current_door = nil
@@ -50,8 +52,12 @@ collisionSystem.process = (e, dt) =>
 
       for col in *cols
         switch (col.other.type or col.other.properties.type)
-          when "water", "spikes"
-            -- water and spikes are deadly
+          when "water"
+            e.dead = true
+          when "spikes"
+            if not e.dead
+              game.play_sound("impaled", true)
+            e.velocity.x = 0
             e.dead = true
           when "sign"
             game.current_sign = col.other
@@ -71,10 +77,21 @@ collisionSystem.process = (e, dt) =>
               @map.layers.objects._batches_dirty = true
           else
             if col.normal.y == -1
-              e.on_ground = true
               if e.velocity.y > 700
+                if not played_sound
+                  played_sound = true
+                  game.play_sound("crash", true)
                 game.camera\shake(0.1, 16 * e.velocity.y / 800)
+              elseif e.velocity.y > 300
+                if not played_sound
+                  played_sound = true
+                  game.play_sound("land", true)
+              elseif (e.velocity.y > 10) and not was_on_ground
+                if not played_sound
+                  played_sound = true
+                  game.play_sound("walk", true)
               e.velocity.y = 0
+              e.on_ground = true
 
       if e.dead
         @world\addEntity(e)
