@@ -1,6 +1,5 @@
 local bump = require("bump")
 local tiny = require("tiny")
-local pprint = require("pprint")
 local Vector
 Vector = require("util").Vector
 local physicsSystem = tiny.processingSystem()
@@ -19,7 +18,6 @@ end
 local collisionSystem = tiny.processingSystem()
 collisionSystem.filter = tiny.requireAll("position", "bounding_box")
 collisionSystem.onAdd = function(self, e)
-  print("added entity to collisionSystem")
   if not self.bump_world:hasItem(e) then
     return self.bump_world:add(e, e.position.x, e.position.y, e.bounding_box.x, e.bounding_box.y)
   else
@@ -155,11 +153,9 @@ end
 local corpseSystem = tiny.processingSystem()
 corpseSystem.filter = tiny.requireAll("dead")
 corpseSystem.onAdd = function(self, e)
-  print("added entity to corpseSystem")
   e.corpse_timer = 2
 end
 corpseSystem.onRemove = function(self, e)
-  print("removed entity from corpseSystem")
   if e.is_player then
     game.switch_level_to = game.checkpoint.level.__class.__name .. ":" .. game.checkpoint.checkpoint.name
   end

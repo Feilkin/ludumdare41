@@ -121,6 +121,9 @@ love.load = function()
   })
 end
 love.update = function(dt)
+  if dt > 0.1 then
+    dt = 0.1
+  end
   if game.switch_level_to then
     game:switch_level(game.switch_level_to)
     game.switch_level_to = nil
@@ -132,13 +135,13 @@ love.update = function(dt)
   camera:lookAt(player)
   camera:update(dt)
   if not player.dead then
-    if love.keyboard.isDown("d") then
+    if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
       player.velocity.x = 200
       player.flip_x = false
       if player.on_ground then
         game.play_sound("walk", true)
       end
-    elseif love.keyboard.isDown("a") then
+    elseif love.keyboard.isDown("a") or love.keyboard.isDown("left") then
       player.velocity.x = -200
       player.flip_x = true
       if player.on_ground then
@@ -147,14 +150,15 @@ love.update = function(dt)
     else
       player.velocity.x = 0
     end
-    if love.keyboard.isDown("space") and player.on_ground then
+    if (love.keyboard.isDown("space") or love.keyboard.isDown("kp0")) and player.on_ground then
       player.velocity.y = -650
       return game.play_sound("jump", true)
     end
   end
 end
 love.keypressed = function(key, code)
-  if key == "w" then
+  local _exp_0 = key
+  if "w" == _exp_0 or "up" == _exp_0 then
     if game.current_door then
       if not game.current_door.properties.locked then
         game.switch_level_to = game.current_door.properties.connects_to

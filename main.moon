@@ -96,6 +96,9 @@ love.load = ->
   game.sounds.impaled = load_sound("impaled", {"spikes1.ogg", "spikes2.ogg"}, { pool_size: 1, volume: 0.6 })
 
 love.update = (dt) ->
+  if dt > 0.1
+    dt = 0.1
+
   if game.switch_level_to
     game\switch_level(game.switch_level_to)
     game.switch_level_to = nil
@@ -109,13 +112,13 @@ love.update = (dt) ->
   camera\update(dt)
 
   if not player.dead
-    if love.keyboard.isDown("d")
+    if love.keyboard.isDown("d") or love.keyboard.isDown("right")
       player.velocity.x = 200
       player.flip_x = false
 
       if player.on_ground
         game.play_sound("walk", true)
-    elseif love.keyboard.isDown("a") 
+    elseif love.keyboard.isDown("a") or love.keyboard.isDown("left")
       player.velocity.x = -200
       player.flip_x = true
       if player.on_ground
@@ -123,17 +126,18 @@ love.update = (dt) ->
     else
       player.velocity.x = 0
 
-    if love.keyboard.isDown("space") and player.on_ground
+    if (love.keyboard.isDown("space") or love.keyboard.isDown("kp0")) and player.on_ground
       player.velocity.y = -650
       game.play_sound("jump", true)
 
 love.keypressed = (key, code) ->
-  if key == "w"
-    if game.current_door
-      if not game.current_door.properties.locked
-        game.switch_level_to = game.current_door.properties.connects_to
-      else
-        camera\shake(0.1, 4)
+  switch key
+    when "w", "up"
+      if game.current_door
+        if not game.current_door.properties.locked
+          game.switch_level_to = game.current_door.properties.connects_to
+        else
+          camera\shake(0.1, 4)
 
 love.draw = ->
   --camera\attach()

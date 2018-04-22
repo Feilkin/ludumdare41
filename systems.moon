@@ -1,6 +1,5 @@
 bump = require "bump"
 tiny = require "tiny"
-pprint = require "pprint"
 
 import Vector from require "util"
 
@@ -18,7 +17,6 @@ physicsSystem.process = (e, dt) =>
 collisionSystem = tiny.processingSystem()
 collisionSystem.filter = tiny.requireAll("position", "bounding_box")
 collisionSystem.onAdd = (e) =>
-  print("added entity to collisionSystem")
   if not @bump_world\hasItem(e)
     @bump_world\add(e, e.position.x, e.position.y, e.bounding_box.x, e.bounding_box.y)
   else
@@ -132,11 +130,9 @@ entityStateSystem.process = (e, dt) =>
 corpseSystem = tiny.processingSystem()
 corpseSystem.filter = tiny.requireAll("dead")
 corpseSystem.onAdd = (e) =>
-  print("added entity to corpseSystem")
   e.corpse_timer = 2
 
 corpseSystem.onRemove = (e) =>
-  print("removed entity from corpseSystem")
   if e.is_player
     game.switch_level_to = game.checkpoint.level.__class.__name .. ":" ..
       game.checkpoint.checkpoint.name

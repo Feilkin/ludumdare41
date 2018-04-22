@@ -87,8 +87,6 @@ recursivefind = (pattern, dir) ->
   for i, v in ipairs(items)
     file = dir .. '/' .. v
 
-    print(file)
-
     if love.filesystem.isFile(file) and file\match(pattern) then
       table.insert(out, file)
     elseif love.filesystem.isDirectory(file) then
@@ -105,7 +103,6 @@ load_sound = (name, path, options) ->
   source_pool = {}
 
   for path in *path
-    print("loading " .. path)
     source = love.audio.newSource("res/sounds/" .. path, "static")
     if options.volume then
       source\setVolume(options.volume)

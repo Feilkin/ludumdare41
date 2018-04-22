@@ -62,7 +62,6 @@ class Level
   spawn_player: (player, spawn) =>
     entityLayer = @map.layers["entities"]
     player_spawn = assert(@map\findObject("objects", spawn), "Could not find " .. spawn)
-    print(string.format("spawn '%s' location %d, %d", player_spawn.name, player_spawn.x, player_spawn.y))
     player.position = Vector(player_spawn.x, player_spawn.y - 64)
     player.velocity = Vector(0, 0)
     player.dead = nil

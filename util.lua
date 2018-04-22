@@ -141,7 +141,6 @@ recursivefind = function(pattern, dir)
   local out = { }
   for i, v in ipairs(items) do
     local file = dir .. '/' .. v
-    print(file)
     if love.filesystem.isFile(file) and file:match(pattern) then
       table.insert(out, file)
     elseif love.filesystem.isDirectory(file) then
@@ -161,7 +160,6 @@ load_sound = function(name, path, options)
   local source_pool = { }
   for _index_0 = 1, #path do
     local path = path[_index_0]
-    print("loading " .. path)
     local source = love.audio.newSource("res/sounds/" .. path, "static")
     if options.volume then
       source:setVolume(options.volume)
